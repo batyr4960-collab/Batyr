@@ -20,7 +20,16 @@ keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
+MODES = {
+    "📚 Решить задачу": "solve",
+    "📝 Сделать конспект": "notes",
+    "🧠 Создать тест": "quiz",
+    "📅 План учёбы": "plan",
+    "🤖 AI-репетитор": "tutor",
+}
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["mode"] = None
     await update.message.reply_text(
         "Привет! Я StudyPilot AI 🎓\n\n"
         "Твой помощник в учёбе. Выбери функцию:",
@@ -28,20 +37,38 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+    text = update.message.text.strip()
 
-    answers = {
-        "📚 Решить задачу": "Пришли условие задачи. Скоро я научусь разбирать её по шагам!",
-        "📝 Сделать конспект": "Пришли текст урока, и я помогу подготовить конспект!",
-        "🧠 Создать тест": "Скоро здесь можно будет создавать учебные тесты!",
-        "📅 План учёбы": "Скоро здесь появится твой персональный планировщик!",
-        "🤖 AI-репетитор": "AI-репетитор скоро будет готов!",
-    }
+    if text in MODES:
+        context.user_data["mode"] = MODES[text]
 
-    await update.message.reply_text(
-        answers.get(text, "Выбери функцию в меню 👇"),
-        reply_markup=keyboard,
-    )
+        messages = {
+            "solve": "📚 Пришли условие задачи. Я помогу разобраться!",
+            "notes": "📝 Пришли текст урока для конспекта.",
+            "quiz": "🧠 Напиши тему, по которой хочешь тест.",
+            "plan": "📅 Напиши, что тебе нужно выучить.",
+            "tutor": "🤖 Режим AI-репетитора выбран. Напиши свой вопрос!",
+        }
+
+        await update.message.reply_text(
+            messages[MODES[text]],
+            reply_markup=keyboard,
+        )
+        return
+
+    mode = context.user_data.get("mode")
+
+    if mode:
+        await update.message.reply_text(
+            "Я получил твоё сообщение! Сейчас подключение настоящего ИИ ещё не настроено. "
+            "Но теперь бот правильно распознаёт выбранный режим. 🎓",
+            reply_markup=keyboard,
+        )
+    else:
+        await update.message.reply_text(
+            "Сначала выбери функцию в меню 👇",
+            reply_markup=keyboard,
+        )
 
 def main():
     if not TOKEN:
