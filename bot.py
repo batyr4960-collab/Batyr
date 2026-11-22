@@ -1,5 +1,7 @@
 
 import os
+import asyncio
+
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -40,18 +42,19 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
 
     if text in MODES:
-        context.user_data["mode"] = MODES[text]
+        mode = MODES[text]
+        context.user_data["mode"] = mode
 
         messages = {
-            "solve": "📚 Пришли условие задачи. Я помогу разобраться!",
-            "notes": "📝 Пришли текст урока для конспекта.",
-            "quiz": "🧠 Напиши тему, по которой хочешь тест.",
-            "plan": "📅 Напиши, что тебе нужно выучить.",
-            "tutor": "🤖 Режим AI-репетитора выбран. Напиши свой вопрос!",
+            "solve": "📚 Пришли условие задачи.",
+            "notes": "📝 Пришли текст урока.",
+            "quiz": "🧠 Напиши тему для теста.",
+            "plan": "📅 Напиши, что нужно выучить.",
+            "tutor": "🤖 AI-репетитор выбран. Напиши свой вопрос!",
         }
 
         await update.message.reply_text(
-            messages[MODES[text]],
+            messages[mode],
             reply_markup=keyboard,
         )
         return
@@ -60,8 +63,7 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if mode:
         await update.message.reply_text(
-            "Я получил твоё сообщение! Сейчас подключение настоящего ИИ ещё не настроено. "
-            "Но теперь бот правильно распознаёт выбранный режим. 🎓",
+            "Я получил твоё сообщение! Настоящий ИИ пока не подключён.",
             reply_markup=keyboard,
         )
     else:
@@ -80,6 +82,5 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.set_event_loop(asyncio.new_event_loop())
     main()
