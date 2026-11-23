@@ -32,7 +32,6 @@ export default function App() {
   const [tab, setTab] = useState('Главная')
   const [selectedSubject, setSelectedSubject] = useState('')
   const [question, setQuestion] = useState('')
-  const [showAll, setShowAll] = useState(false)
 
   const openSubject = (name: string) => {
     setSelectedSubject(name)
